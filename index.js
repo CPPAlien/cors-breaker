@@ -2,7 +2,7 @@ const Koa = require('koa');
 const app = new Koa();
 const request = require('request');
 
-const TARGET_HOST = 'http://alpha.kujiale.com';
+const TARGET_HOST = 'https://alpha.kujiale.com';
 
 app.use(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
@@ -15,6 +15,7 @@ app.use(async (ctx, next) => {
 app.use(async (ctx, next) => {
   const path = ctx.request.url;
   const headers = JSON.parse(JSON.stringify(ctx.request.header));
+  delete headers['host']
   if (ctx.request.method === 'OPTIONS') {
     ctx.response.status = 200;
     return;
@@ -28,9 +29,13 @@ app.use(async (ctx, next) => {
 
   await new Promise((resolve) => {
     request(req, async (error, response, body) => {
-      ctx.response.status = response.statusCode;
-      ctx.response.body = response.body;
-      ctx.response.header = response.headers;
+      if (!error && response.statusCode == 200) {
+        ctx.response.status = response.statusCode;
+        ctx.response.body = response.body;
+        ctx.response.header = response.headers;
+      } else {
+        console.log(error)
+      }
       resolve();
     });
   });
