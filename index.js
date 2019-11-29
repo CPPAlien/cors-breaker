@@ -1,8 +1,11 @@
 const Koa = require('koa');
+const bodyParser = require('koa-bodyparser');
 const app = new Koa();
 const request = require('request');
 
-const TARGET_HOST = 'https://alpha.kujiale.com';
+const TARGET_HOST = 'https://ht-json.htmimi.com';
+
+app.use(bodyParser());
 
 app.use(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
@@ -20,11 +23,11 @@ app.use(async (ctx, next) => {
     ctx.response.status = 200;
     return;
   }
-
   const req = {
     headers: headers,
     uri: `${TARGET_HOST}${path}`,
     method: ctx.request.method,
+    json: ctx.request.body || ''
   };
 
   await new Promise((resolve) => {
